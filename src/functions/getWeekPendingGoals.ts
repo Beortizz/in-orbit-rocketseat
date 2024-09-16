@@ -27,10 +27,9 @@ export async function getWeekPendingGoals() {
         db
             .select({
                 goalId: goalCompletions.goalId,
-                completionCount: count(goalCompletions.id).
-                as(
+                completionCount: count(goalCompletions.id).as(
                     "completionCount"
-                )
+                ),
             })
             .from(goalCompletions)
             .where(
@@ -48,8 +47,10 @@ export async function getWeekPendingGoals() {
             id: goalsCreatedUpToWeek.id,
             title: goalsCreatedUpToWeek.title,
             desiredWeeklyFrequency: goalsCreatedUpToWeek.desiredWeeklyFrequency,
-            completionCount: sql`COALESCE(${goalCompletionCounts.completionCount}, 0)`.mapWith(Number),
-            
+            completionCount:
+                sql`COALESCE(${goalCompletionCounts.completionCount}, 0)`.mapWith(
+                    Number
+                ),
         })
         .from(goalsCreatedUpToWeek)
         .leftJoin(
