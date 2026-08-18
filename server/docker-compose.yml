@@ -1,12 +1,39 @@
 name: in-orbit-server
 
 services:
+  app:
+    build: .
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    environment:
+      - DATABASE_URL=postgresql://docker:docker@postgres:5432/inorbit
+    ports:
+      - '3333:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [in-orbit]
+
   postgres:
     image: bitnami/postgresql:13.16.0
     ports:
-      - '5432:5432'
+      - '5433:5432'
     environment:
       - POSTGRESQL_USERNAME=docker
       - POSTGRESQL_PASSWORD=docker
       - POSTGRESQL_DATABASE=inorbit
+    volumes:
+      - dbdata:/bitnami/postgresql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "docker", "-d", "inorbit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [in-orbit]
 
+volumes:
+  dbdata:
+
+networks:
+  in-orbit:
